@@ -1,4 +1,4 @@
-import React, { ReactNode, Suspense, useEffect } from "react";
+import React, { ReactNode, Suspense, createContext, useContext, useEffect, useState } from "react";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { useAccount } from "wagmi";
 import Account from "./components/Accounts/Index";
@@ -9,10 +9,20 @@ const Market = React.lazy(() => import("./views/market/Index"));
 
 interface PrivateRouteProps {
     children: ReactNode;
+    isGuest: boolean;
 }
 
+// 创建 Context
+const GuestModeContext = createContext<{
+    isGuest: boolean;
+    setIsGuest: React.Dispatch<React.SetStateAction<boolean>>;
+}>({
+    isGuest: false,
+    setIsGuest: () => {},
+});
+
 // PrivateRoute 组件
-const PrivateRoute = ({ children }: PrivateRouteProps) => {
+const PrivateRoute = ({ children, isGuest }: PrivateRouteProps) => {
     const { status } = useAccount();
 
     useEffect(() => {}, [status]);
@@ -21,7 +31,7 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
         return <div>Loading...</div>;
     }
 
-    if (status !== "connected") {
+    if (status !== "connected" && !isGuest) {
         return <Navigate to="/login" />;
     }
 
@@ -30,31 +40,35 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
 
 function App() {
     const { status } = useAccount();
+    const [isGuest, setIsGuest] = useState(false);
 
     useEffect(() => {}, [status]);
 
     return (
         <>
-            <div className="h-full">
-                <Account />
-                <Router>
-                    <Suspense fallback={<div>Loading...</div>}>
-                        <Routes>
-                            <Route
-                                path="/"
-                                element={
-                                    <PrivateRoute>
-                                        <Market />
-                                    </PrivateRoute>
-                                }
-                            />
-                            <Route path="/login" element={<Login />} />
-                        </Routes>
-                    </Suspense>
-                </Router>
-            </div>
+            <GuestModeContext.Provider value={{ isGuest, setIsGuest }}>
+                <div className="h-full">
+                    <Account />
+                    <Router>
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <Routes>
+                                <Route
+                                    path="/"
+                                    element={
+                                        <PrivateRoute isGuest={isGuest}>
+                                            <Market />
+                                        </PrivateRoute>
+                                    }
+                                />
+                                <Route path="/login" element={<Login />} />
+                            </Routes>
+                        </Suspense>
+                    </Router>
+                </div>
+            </GuestModeContext.Provider>
         </>
     );
 }
 
+export const useGuestMode = () => useContext(GuestModeContext);
 export default App;
