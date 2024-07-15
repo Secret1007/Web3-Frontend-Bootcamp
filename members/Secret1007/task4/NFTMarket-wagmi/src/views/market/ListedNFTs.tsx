@@ -5,30 +5,37 @@ const marketAddress = import.meta.env.VITE_NFT_MARKET_ADDRESS;
 const marketAbi = ["function listNFT(address nftContract, uint256 tokenId, uint256 price) external"];
 
 const ListedNFTs = () => {
-    const [nfts, setNfts] = useState([]);
+    const [items, setItems] = useState([]);
 
-    const { data } = useReadContract({
+    const { data, isError, isLoading } = useReadContract({
         address: marketAddress,
         abi: marketAbi,
-        functionName: "getListedItems",
+        functionName: "fetchMarketItems",
     });
 
+    console.log("isLoading:", isLoading, "isError:", isError, "data:", data);
     useEffect(() => {
-        if (data) {
-            setNfts(data);
+        if (!isLoading && !isError && data) {
+            setItems(data);
         }
-    }, [data]);
+    }, [data, isError, isLoading]);
 
     return (
         <div>
-            {nfts.map((nft, index) => (
-                <div key={index}>
-                    <p>Contract: {nft.contractAddress}</p>
-                    <p>Token ID: {nft.tokenId}</p>
-                    <p>Price: {ethers.formatUnits(nft.price, "ether")} ETH</p>
-                    <p>Seller: {nft.seller}</p>
-                </div>
-            ))}
+            {isLoading ? (
+                <p>Loading...</p>
+            ) : (
+                <ul>
+                    {items.map((item, index) => (
+                        <li key={index}>
+                            <p>NFT Address: {item.nftContract}</p>
+                            <p>Token ID: {item.tokenId.toString()}</p>
+                            <p>Price: {ethers.formatEther(item.price.toString())} ETH</p>
+                            <p>Seller: {item.seller}</p>
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };

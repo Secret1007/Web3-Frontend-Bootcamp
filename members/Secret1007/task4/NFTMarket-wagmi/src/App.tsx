@@ -1,11 +1,12 @@
 import React, { ReactNode, Suspense, createContext, useContext, useEffect, useState } from "react";
-import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Navigate, Route, BrowserRouter as Router, Routes, useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 import Account from "./components/Accounts/Index";
 
 // Pages
 const Login = React.lazy(() => import("./views/login/Index"));
 const Market = React.lazy(() => import("./views/market/Index"));
+const Home = React.lazy(() => import("./views/home/Index"));
 
 interface PrivateRouteProps {
     children: ReactNode;
@@ -45,27 +46,39 @@ function App() {
     useEffect(() => {}, [status]);
 
     return (
+        <GuestModeContext.Provider value={{ isGuest, setIsGuest }}>
+            <div className="h-full">
+                <Router>
+                    <AppContent />
+                </Router>
+            </div>
+        </GuestModeContext.Provider>
+    );
+}
+
+function AppContent() {
+    const navigate = useNavigate();
+    const handleGoHome = () => {
+        navigate("/home");
+    };
+
+    return (
         <>
-            <GuestModeContext.Provider value={{ isGuest, setIsGuest }}>
-                <div className="h-full">
-                    <Account />
-                    <Router>
-                        <Suspense fallback={<div>Loading...</div>}>
-                            <Routes>
-                                <Route
-                                    path="/"
-                                    element={
-                                        <PrivateRoute isGuest={isGuest}>
-                                            <Market />
-                                        </PrivateRoute>
-                                    }
-                                />
-                                <Route path="/login" element={<Login />} />
-                            </Routes>
-                        </Suspense>
-                    </Router>
-                </div>
-            </GuestModeContext.Provider>
+            <Account handleGoHome={handleGoHome} />
+            <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                    <Route
+                        path="/"
+                        element={
+                            <PrivateRoute isGuest={useContext(GuestModeContext).isGuest}>
+                                <Market />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/home" element={<Home />} />
+                </Routes>
+            </Suspense>
         </>
     );
 }

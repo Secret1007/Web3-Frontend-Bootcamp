@@ -79,4 +79,25 @@ contract NFTMarket is ReentrancyGuard {
 
         delete listings[listingId];
     }
+
+    function getAllListings() external view returns (Listing[] memory) {
+        uint256 currentListingCount = listingCount - 1;
+        uint256 activeListings = 0;
+        for (uint256 i = 1; i <= currentListingCount; i++) {
+            if (listings[i].price > 0) {
+                activeListings++;
+            }
+        }
+
+        Listing[] memory result = new Listing[](activeListings);
+        uint256 j = 0;
+        for (uint256 i = 1; i <= currentListingCount; i++) {
+            if (listings[i].price > 0) {
+                result[j] = listings[i];
+                j++;
+            }
+        }
+
+        return result;
+    }
 }

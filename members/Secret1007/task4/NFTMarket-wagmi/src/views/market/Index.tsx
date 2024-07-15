@@ -6,10 +6,10 @@ function market() {
     return (
         <div className="h-full flex flex-col justify-center items-center">
             <div className="w-100">
-                <h1 className="mb-8">Market </h1>
-                <ListNFT />
+                <h1 className="mb-8">Market</h1>
+                {/* <ListNFT />
                 <ListedNFTs />
-                <BuyNFT />
+                <BuyNFT /> */}
             </div>
         </div>
     );

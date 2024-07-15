@@ -1,6 +1,7 @@
 import { useGuestMode } from "@/App";
 import { Icon } from "@iconify/react";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAccount, useConnect } from "wagmi";
 
 function Login() {
@@ -13,6 +14,7 @@ function Login() {
             window.location.href = "/";
         }
     }, [status]);
+
     return (
         <>
             <div className=" rounded-lg shadow-lg w-full h-full flex items-center justify-center">
