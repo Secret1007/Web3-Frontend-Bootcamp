@@ -1,7 +1,12 @@
 import { Icon } from "@iconify/react";
 import { useAccount, useDisconnect } from "wagmi";
 import "./index.scss";
-function Account({ handleGoHome }) {
+
+interface AccountProps {
+    handleGoHome: () => void;
+}
+
+const Account: React.FC<AccountProps> = ({ handleGoHome }) => {
     const { disconnect } = useDisconnect();
     const account = useAccount();
 
@@ -14,6 +19,9 @@ function Account({ handleGoHome }) {
             default:
                 return "mdi:account";
         }
+    };
+    const handleDisconnect = () => {
+        disconnect();
     };
 
     return (
@@ -41,13 +49,13 @@ function Account({ handleGoHome }) {
                     </div>
                 )}
                 {account.status === "connected" && (
-                    <div className="disconnect-btn flex items-center justify-center py-2 px-8 cursor-pointer bg-dark font-bold" onClick={disconnect}>
+                    <div className="disconnect-btn flex items-center justify-center py-2 px-8 cursor-pointer bg-dark font-bold" onClick={handleDisconnect}>
                         Disconnect
                     </div>
                 )}
             </div>
         </div>
     );
-}
+};
 
 export default Account;

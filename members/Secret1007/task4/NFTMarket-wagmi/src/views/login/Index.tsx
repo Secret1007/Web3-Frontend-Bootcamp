@@ -1,7 +1,6 @@
 import { useGuestMode } from "@/App";
 import { Icon } from "@iconify/react";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAccount, useConnect } from "wagmi";
 
 function Login() {
